@@ -1,0 +1,23 @@
+{
+  "name": "sourcemapping",
+  "version": "1.0.0",
+  "description": "mapping to source code",
+  "main": "index.js",
+  "scripts": {
+    "test": "node bin/sourcemapping.js",
+    "mapping": ""
+  },
+  "bin": {
+    "sourcemapping": "bin/sourcemapping.js"
+  },
+  "author": "zpo",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.20.0",
+    "error-stack-parser": "^2.0.2",
+    "source-map": "^0.7.3"
+  },
+  "devDependencies": {
+    "@types/node": "^12.0.12"
+  }
+}
