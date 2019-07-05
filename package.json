@@ -4,8 +4,7 @@
   "description": "mapping to source code",
   "main": "index.js",
   "scripts": {
-    "test": "node bin/sourcemapping.js",
-    "mapping": ""
+    "test": "tsc && node bin/sourcemapping.js -s \"ReferenceError: exclued is not defined\\n    at getParameterByName (http://localhost:7777/aabbcc/index.js:7:37)\\n    at http://localhost:7777/aabbcc/index.js:15:11\" -i \"Uncaught ReferenceError: exclued is not defined\""
   },
   "bin": {
     "sourcemapping": "bin/sourcemapping.js"
