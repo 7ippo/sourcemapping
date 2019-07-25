@@ -38,9 +38,15 @@ if (program.stack && program.msg) {
         process.exit(0);
     }
     console.log(stack_frame_array);
+
     // TODO: Translate line/column/fileName using sourcemap
     // stack_frame_array.forEach(stack_frame => {
     // });
+    let frames_count = stack_frame_array.length;
+    let frames_done = 0;
+    while(frames_done < frames_count){
+        
+    }    
 } else {
     console.error("No error stack string or error msg string found. Please Check input.");
 }
