@@ -4,10 +4,7 @@ import * as ErrorStackParser from 'error-stack-parser';
 import * as commander from 'commander';
 import { readFileSync, read } from 'fs';
 import { SourceMapConsumer } from 'source-map';
-
-type sourcemapList = {
-    [index: string]: any
-}
+import { resolve } from 'url';
 
 let raw_stack_string_array: string[];
 
@@ -18,7 +15,32 @@ function stackStringProcess(value: any, previous: any): string {
 }
 
 function printToConsole(error_msg: string, stack_frames: ErrorStackParser.StackFrame[]): void {
+}
 
+async function loadAllConsumer(dir_path: string, stack_frame_array: ErrorStackParser.StackFrame[],
+    sourcemap_map: Map<string, SourceMapConsumer>) {
+    // 一次性把解析用到的sourcemap读进内存
+    const sourcemap_list = new Set();
+    const regExp = /.+\/(.+)$/;
+    for (const frame of stack_frame_array) {
+        if (frame.hasOwnProperty('fileName')) {
+            const name = regExp.exec(frame.fileName)[1];
+            frame.fileName = name;
+            if (!sourcemap_list.has(name)) {
+                sourcemap_list.add(name);
+                let sourcemap_filepath = path.join(dir_path, name + '.map');
+                let sourcemap: any;
+                try {
+                    sourcemap = JSON.parse(readFileSync(sourcemap_filepath, 'utf-8'))
+                } catch (error) {
+                    console.error('Read&Parse sourcemap:' + sourcemap_filepath + 'failed. ' + error.toString());
+                    process.exit(0);
+                }
+                const consumer = await new SourceMapConsumer(sourcemap);
+                !sourcemap_map.has(name) && sourcemap_map.set(name, consumer);
+            }
+        }
+    }
 }
 
 const program = new commander.Command();
@@ -47,39 +69,36 @@ if (program.stack && program.msg && program.map) {
     }
     console.log(stack_frame_array);
 
-    // 一次性把解析用到的sourcemap读进内存
-    const sourcemap_list: sourcemapList = new Map();
-    let regExp = /.+\/(.+)$/;
-    for (const frame of stack_frame_array) {
-        if (frame.hasOwnProperty('fileName')) {
-            const name = regExp.exec(frame.fileName)[1];
-            if (!sourcemap_list.has(name)) {
-                let sourcemap_filepath = path.join(program.map, name + '.map');
-                let sourcemap: any;
-                try {
-                    sourcemap = JSON.parse(readFileSync(sourcemap_filepath, 'utf-8'))
-                } catch (error) {
-                    console.error('Read&Parse sourcemap:' + sourcemap_filepath + 'failed. ' + error.toString());
-                    process.exit(0);
-                }
-                sourcemap_list.set(name, sourcemap);
-            }
-        }
-    }
+    const sourcemap_map = new Map<string, SourceMapConsumer>();
 
-    // 循环异步解析stack_frame_array
-    stack_frame_array.forEach(stack_frame => {
+    // 加载全部要用到的sourcemap文件
+    loadAllConsumer(program.map, stack_frame_array, sourcemap_map).then(() => {
+        // let promise_list: Promise<any>[];
+        // 遍历解析stack_frame_array
+        stack_frame_array.forEach(stack_frame => {
+            let name = stack_frame.fileName;
+            let consumer = sourcemap_map.get(name);
+            let origin = consumer.originalPositionFor({ 
+                line: stack_frame.lineNumber, 
+                column: stack_frame.columnNumber 
+            });
+            if (origin.line) stack_frame.lineNumber = origin.line;
+            if (origin.column) stack_frame.columnNumber = origin.column;
+            if (origin.source) stack_frame.fileName = origin.source;
+            if (origin.name) stack_frame.functionName = origin.name;
+        });
+        // Promise.all(promise_list).then(() => {
+        //     
+        // });
 
+        // 打印结果
+        stack_frame_array.toString();
     });
 
-    // TODO: Translate line/column/fileName by using sourcemap
-    // stack_frame_array.forEach(stack_frame => {
-    // });
-    // let frames_count = stack_frame_array.length;
-    // let frames_done = 0;
-    // while(frames_done < frames_count){
-    //     const source_map = JSON.parse(readFileSync('','utf-8'));
-    // }    
+    // 解析结束后destroy所有consumer
+    for (let consumer of Array.from(sourcemap_map.values())) {
+        consumer.destroy();
+    }
 } else {
     console.error("No error stack string OR error msg string OR sourcemap dir found. Please Check input.");
 }
