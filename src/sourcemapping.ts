@@ -2,9 +2,8 @@
 import * as path from 'path';
 import * as ErrorStackParser from 'error-stack-parser';
 import * as commander from 'commander';
-import { readFileSync, read } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { SourceMapConsumer } from 'source-map';
-import { resolve } from 'url';
 
 let raw_stack_string_array: string[];
 
@@ -29,15 +28,17 @@ async function loadAllConsumer(dir_path: string, stack_frame_array: ErrorStackPa
             if (!sourcemap_list.has(name)) {
                 sourcemap_list.add(name);
                 let sourcemap_filepath = path.join(dir_path, name + '.map');
-                let sourcemap: any;
-                try {
-                    sourcemap = JSON.parse(readFileSync(sourcemap_filepath, 'utf-8'))
-                } catch (error) {
-                    console.error('Read&Parse sourcemap:' + sourcemap_filepath + 'failed. ' + error.toString());
-                    process.exit(0);
+                if (existsSync(sourcemap_filepath)) {
+                    let sourcemap: any;
+                    try {
+                        sourcemap = JSON.parse(readFileSync(sourcemap_filepath, 'utf-8'))
+                    } catch (error) {
+                        console.error('Read&Parse sourcemap:' + sourcemap_filepath + 'failed. ' + error.toString());
+                        process.exit(0);
+                    }
+                    const consumer = await new SourceMapConsumer(sourcemap);
+                    !sourcemap_map.has(name) && sourcemap_map.set(name, consumer);
                 }
-                const consumer = await new SourceMapConsumer(sourcemap);
-                !sourcemap_map.has(name) && sourcemap_map.set(name, consumer);
             }
         }
     }
@@ -116,3 +117,5 @@ if (program.stack && program.msg && program.map) {
 //     lineNumber: 15,
 //     fileName: 'http://localhost:7777/aabbcc/index.js',
 //     source: '    at http://localhost:7777/aabbcc/index.js:15:11' } ]
+
+// "ReferenceError: exclued is not defined\n at getParameterByName (http://localhost:7777/logline.min.js:1:99)\n at http://localhost:7777/aabbcc/index.js:15:11"
