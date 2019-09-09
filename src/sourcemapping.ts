@@ -74,23 +74,21 @@ if (program.stack && program.msg && program.map) {
 
     // 加载全部要用到的sourcemap文件
     loadAllConsumer(program.map, stack_frame_array, sourcemap_map).then(() => {
-        // let promise_list: Promise<any>[];
         // 遍历解析stack_frame_array
         stack_frame_array.forEach(stack_frame => {
             let name = stack_frame.fileName;
-            let consumer = sourcemap_map.get(name);
-            let origin = consumer.originalPositionFor({ 
-                line: stack_frame.lineNumber, 
-                column: stack_frame.columnNumber 
-            });
-            if (origin.line) stack_frame.lineNumber = origin.line;
-            if (origin.column) stack_frame.columnNumber = origin.column;
-            if (origin.source) stack_frame.fileName = origin.source;
-            if (origin.name) stack_frame.functionName = origin.name;
+            if (sourcemap_map.has(name)) {
+                let consumer = sourcemap_map.get(name);
+                let origin = consumer.originalPositionFor({ 
+                    line: stack_frame.lineNumber, 
+                    column: stack_frame.columnNumber 
+                });
+                if (origin.line) stack_frame.lineNumber = origin.line;
+                if (origin.column) stack_frame.columnNumber = origin.column;
+                if (origin.source) stack_frame.fileName = origin.source;
+                if (origin.name) stack_frame.functionName = origin.name;
+            }
         });
-        // Promise.all(promise_list).then(() => {
-        //     
-        // });
 
         // 打印结果
         stack_frame_array.toString();
