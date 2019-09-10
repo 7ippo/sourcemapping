@@ -1,6 +1,6 @@
 {
   "name": "sourcemapping",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "mapping to source code",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,12 @@
   },
   "author": "zpo",
   "license": "ISC",
+  "keywords": [
+    "sourcemap",
+    "stack",
+    "stack-trace",
+    "window.onerror"
+  ],
   "dependencies": {
     "commander": "^2.20.0",
     "error-stack-parser": "^2.0.2",
