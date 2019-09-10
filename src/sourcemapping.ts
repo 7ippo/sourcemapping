@@ -93,9 +93,9 @@ if (program.stack && program.msg && program.map) {
             if (sourcemap_map.has(name)) {
                 // console.log("using " + name + ".map to mapping!");
                 let consumer = sourcemap_map.get(name);
-                let origin = consumer.originalPositionFor({ 
-                    line: stack_frame.lineNumber, 
-                    column: stack_frame.columnNumber 
+                let origin = consumer.originalPositionFor({
+                    line: stack_frame.lineNumber,
+                    column: stack_frame.columnNumber
                 });
                 // console.debug("before analyzed");
                 // console.debug(stack_frame);
