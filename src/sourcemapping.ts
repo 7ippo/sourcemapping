@@ -14,6 +14,19 @@ function stackStringProcess(value: any, previous: any): string {
 }
 
 function printToConsole(error_msg: string, stack_frames: ErrorStackParser.StackFrame[]): void {
+    console.log("----Sourcemap Result----")
+    console.log(error_msg);
+    for (const frame of stack_frames) {
+        let msg = "    at ";
+        if (frame.functionName) msg += frame.functionName + " ";
+        msg += "(";
+        if (frame.fileName) msg += frame.fileName + ":";
+        if (frame.lineNumber) msg += frame.lineNumber + ":";
+        if (frame.columnNumber) msg += frame.columnNumber;
+        msg += ")";
+        console.log(msg);
+    }
+    console.log("------------------------")
 }
 
 async function loadAllConsumer(dir_path: string, stack_frame_array: ErrorStackParser.StackFrame[],
@@ -28,9 +41,8 @@ async function loadAllConsumer(dir_path: string, stack_frame_array: ErrorStackPa
             if (!sourcemap_list.has(name)) {
                 sourcemap_list.add(name);
                 let sourcemap_filepath = path.join(dir_path, name + '.map');
-                console.log(sourcemap_filepath);
                 if (existsSync(sourcemap_filepath)) {
-                    console.log("exist!");
+                    console.debug(sourcemap_filepath + " exist!");
                     let sourcemap: any;
                     try {
                         sourcemap = JSON.parse(readFileSync(sourcemap_filepath, 'utf-8'))
@@ -62,7 +74,6 @@ if (program.stack && program.msg && program.map) {
         'message': program.msg,
         'name': program.msg.split(':')[0]
     }
-    console.log(error_obj);
     let stack_frame_array: ErrorStackParser.StackFrame[] = [];
     try {
         stack_frame_array = ErrorStackParser.parse(error_obj)
@@ -70,7 +81,7 @@ if (program.stack && program.msg && program.map) {
         console.error('ErrorStackParser parsing failed' + error.toString());
         process.exit(0);
     }
-    console.log(stack_frame_array);
+    // console.debug(stack_frame_array);
 
     const sourcemap_map = new Map<string, SourceMapConsumer>();
 
@@ -80,15 +91,16 @@ if (program.stack && program.msg && program.map) {
         stack_frame_array.forEach(stack_frame => {
             let name = stack_frame.fileName;
             if (sourcemap_map.has(name)) {
+                console.log("using " + name + ".map to mapping!");
                 let consumer = sourcemap_map.get(name);
                 let origin = consumer.originalPositionFor({ 
                     line: stack_frame.lineNumber, 
                     column: stack_frame.columnNumber 
                 });
-                console.debug("before analyzed");
-                console.debug(stack_frame);
-                console.debug("after analyzed");
-                console.debug(origin);
+                // console.debug("before analyzed");
+                // console.debug(stack_frame);
+                // console.debug("after analyzed");
+                // console.debug(origin);
                 if (origin.line) stack_frame.lineNumber = origin.line;
                 if (origin.column) stack_frame.columnNumber = origin.column;
                 if (origin.source) stack_frame.fileName = origin.source;
@@ -98,6 +110,7 @@ if (program.stack && program.msg && program.map) {
 
         // 打印结果
         console.log(stack_frame_array);
+        printToConsole(program.msg, stack_frame_array);
     });
 
     // 解析结束后destroy所有consumer

@@ -52,6 +52,24 @@ function stackStringProcess(value, previous) {
     return raw_stack_string_array.join('\n');
 }
 function printToConsole(error_msg, stack_frames) {
+    console.log("----Sourcemap Result----");
+    console.log(error_msg);
+    for (var _i = 0, stack_frames_1 = stack_frames; _i < stack_frames_1.length; _i++) {
+        var frame = stack_frames_1[_i];
+        var msg = "    at ";
+        if (frame.functionName)
+            msg += frame.functionName + " ";
+        msg += "(";
+        if (frame.fileName)
+            msg += frame.fileName + ":";
+        if (frame.lineNumber)
+            msg += frame.lineNumber + ":";
+        if (frame.columnNumber)
+            msg += frame.columnNumber;
+        msg += ")";
+        console.log(msg);
+    }
+    console.log("------------------------");
 }
 function loadAllConsumer(dir_path, stack_frame_array, sourcemap_map) {
     return __awaiter(this, void 0, void 0, function () {
@@ -72,6 +90,8 @@ function loadAllConsumer(dir_path, stack_frame_array, sourcemap_map) {
                     if (!!sourcemap_list.has(name_1)) return [3 /*break*/, 3];
                     sourcemap_list.add(name_1);
                     sourcemap_filepath = path.join(dir_path, name_1 + '.map');
+                    if (!fs_1.existsSync(sourcemap_filepath)) return [3 /*break*/, 3];
+                    console.debug(sourcemap_filepath + " exist!");
                     sourcemap = void 0;
                     try {
                         sourcemap = JSON.parse(fs_1.readFileSync(sourcemap_filepath, 'utf-8'));
@@ -107,7 +127,6 @@ if (program.stack && program.msg && program.map) {
         'message': program.msg,
         'name': program.msg.split(':')[0]
     };
-    console.log(error_obj);
     var stack_frame_array_2 = [];
     try {
         stack_frame_array_2 = ErrorStackParser.parse(error_obj);
@@ -116,33 +135,37 @@ if (program.stack && program.msg && program.map) {
         console.error('ErrorStackParser parsing failed' + error.toString());
         process.exit(0);
     }
-    console.log(stack_frame_array_2);
+    // console.debug(stack_frame_array);
     var sourcemap_map_1 = new Map();
     // 加载全部要用到的sourcemap文件
     loadAllConsumer(program.map, stack_frame_array_2, sourcemap_map_1).then(function () {
-        // let promise_list: Promise<any>[];
         // 遍历解析stack_frame_array
         stack_frame_array_2.forEach(function (stack_frame) {
             var name = stack_frame.fileName;
-            var consumer = sourcemap_map_1.get(name);
-            var origin = consumer.originalPositionFor({
-                line: stack_frame.lineNumber,
-                column: stack_frame.columnNumber
-            });
-            if (origin.line)
-                stack_frame.lineNumber = origin.line;
-            if (origin.column)
-                stack_frame.columnNumber = origin.column;
-            if (origin.source)
-                stack_frame.fileName = origin.source;
-            if (origin.name)
-                stack_frame.functionName = origin.name;
+            if (sourcemap_map_1.has(name)) {
+                console.log("using " + name + ".map to mapping!");
+                var consumer = sourcemap_map_1.get(name);
+                var origin_1 = consumer.originalPositionFor({
+                    line: stack_frame.lineNumber,
+                    column: stack_frame.columnNumber
+                });
+                // console.debug("before analyzed");
+                // console.debug(stack_frame);
+                // console.debug("after analyzed");
+                // console.debug(origin);
+                if (origin_1.line)
+                    stack_frame.lineNumber = origin_1.line;
+                if (origin_1.column)
+                    stack_frame.columnNumber = origin_1.column;
+                if (origin_1.source)
+                    stack_frame.fileName = origin_1.source;
+                if (origin_1.name)
+                    stack_frame.functionName = origin_1.name;
+            }
         });
-        // Promise.all(promise_list).then(() => {
-        //     
-        // });
         // 打印结果
-        stack_frame_array_2.toString();
+        console.log(stack_frame_array_2);
+        printToConsole(program.msg, stack_frame_array_2);
     });
     // 解析结束后destroy所有consumer
     for (var _i = 0, _a = Array.from(sourcemap_map_1.values()); _i < _a.length; _i++) {
@@ -166,4 +189,5 @@ var templateObject_1;
 //     lineNumber: 15,
 //     fileName: 'http://localhost:7777/aabbcc/index.js',
 //     source: '    at http://localhost:7777/aabbcc/index.js:15:11' } ]
+// "ReferenceError: exclued is not defined\n at getParameterByName (http://localhost:7777/logline.min.js:1:99)\n at http://localhost:7777/aabbcc/index.js:15:11"
 //# sourceMappingURL=sourcemapping.js.map
