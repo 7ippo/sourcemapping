@@ -28,7 +28,9 @@ async function loadAllConsumer(dir_path: string, stack_frame_array: ErrorStackPa
             if (!sourcemap_list.has(name)) {
                 sourcemap_list.add(name);
                 let sourcemap_filepath = path.join(dir_path, name + '.map');
+                console.log(sourcemap_filepath);
                 if (existsSync(sourcemap_filepath)) {
+                    console.log("exist!");
                     let sourcemap: any;
                     try {
                         sourcemap = JSON.parse(readFileSync(sourcemap_filepath, 'utf-8'))
@@ -83,6 +85,10 @@ if (program.stack && program.msg && program.map) {
                     line: stack_frame.lineNumber, 
                     column: stack_frame.columnNumber 
                 });
+                console.debug("before analyzed");
+                console.debug(stack_frame);
+                console.debug("after analyzed");
+                console.debug(origin);
                 if (origin.line) stack_frame.lineNumber = origin.line;
                 if (origin.column) stack_frame.columnNumber = origin.column;
                 if (origin.source) stack_frame.fileName = origin.source;
@@ -91,7 +97,7 @@ if (program.stack && program.msg && program.map) {
         });
 
         // 打印结果
-        stack_frame_array.toString();
+        console.log(stack_frame_array);
     });
 
     // 解析结束后destroy所有consumer
