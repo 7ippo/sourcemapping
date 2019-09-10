@@ -1,6 +1,6 @@
 {
   "name": "sourcemapping",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "mapping to source code",
   "main": "index.js",
   "scripts": {

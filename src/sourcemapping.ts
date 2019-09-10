@@ -42,7 +42,7 @@ async function loadAllConsumer(dir_path: string, stack_frame_array: ErrorStackPa
                 sourcemap_list.add(name);
                 let sourcemap_filepath = path.join(dir_path, name + '.map');
                 if (existsSync(sourcemap_filepath)) {
-                    console.debug(sourcemap_filepath + " exist!");
+                    // console.debug(sourcemap_filepath + " exist!");
                     let sourcemap: any;
                     try {
                         sourcemap = JSON.parse(readFileSync(sourcemap_filepath, 'utf-8'))
@@ -65,8 +65,8 @@ program.option('-i, --msg <string>', 'error message. e.g. Uncaught ReferenceErro
 program.option('-m, --map <string>', 'sourcemap dir path. Where to find sourcemap');
 program.parse(process.argv);
 
-console.debug("Check input")
-console.log(program.opts());
+// console.debug("Check input")
+// console.log(program.opts());
 
 if (program.stack && program.msg && program.map) {
     let error_obj: Error = {
@@ -91,7 +91,7 @@ if (program.stack && program.msg && program.map) {
         stack_frame_array.forEach(stack_frame => {
             let name = stack_frame.fileName;
             if (sourcemap_map.has(name)) {
-                console.log("using " + name + ".map to mapping!");
+                // console.log("using " + name + ".map to mapping!");
                 let consumer = sourcemap_map.get(name);
                 let origin = consumer.originalPositionFor({ 
                     line: stack_frame.lineNumber, 
@@ -109,7 +109,7 @@ if (program.stack && program.msg && program.map) {
         });
 
         // 打印结果
-        console.log(stack_frame_array);
+        // console.log(stack_frame_array);
         printToConsole(program.msg, stack_frame_array);
     });
 

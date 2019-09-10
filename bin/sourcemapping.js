@@ -91,7 +91,6 @@ function loadAllConsumer(dir_path, stack_frame_array, sourcemap_map) {
                     sourcemap_list.add(name_1);
                     sourcemap_filepath = path.join(dir_path, name_1 + '.map');
                     if (!fs_1.existsSync(sourcemap_filepath)) return [3 /*break*/, 3];
-                    console.debug(sourcemap_filepath + " exist!");
                     sourcemap = void 0;
                     try {
                         sourcemap = JSON.parse(fs_1.readFileSync(sourcemap_filepath, 'utf-8'));
@@ -119,8 +118,8 @@ program.option('-s, --stack <string>', 'stack string which can obtain from JSON.
 program.option('-i, --msg <string>', 'error message. e.g. Uncaught ReferenceError: a is not defined');
 program.option('-m, --map <string>', 'sourcemap dir path. Where to find sourcemap');
 program.parse(process.argv);
-console.debug("Check input");
-console.log(program.opts());
+// console.debug("Check input")
+// console.log(program.opts());
 if (program.stack && program.msg && program.map) {
     var error_obj = {
         'stack': program.stack,
@@ -143,7 +142,7 @@ if (program.stack && program.msg && program.map) {
         stack_frame_array_2.forEach(function (stack_frame) {
             var name = stack_frame.fileName;
             if (sourcemap_map_1.has(name)) {
-                console.log("using " + name + ".map to mapping!");
+                // console.log("using " + name + ".map to mapping!");
                 var consumer = sourcemap_map_1.get(name);
                 var origin_1 = consumer.originalPositionFor({
                     line: stack_frame.lineNumber,
@@ -164,7 +163,7 @@ if (program.stack && program.msg && program.map) {
             }
         });
         // 打印结果
-        console.log(stack_frame_array_2);
+        // console.log(stack_frame_array);
         printToConsole(program.msg, stack_frame_array_2);
     });
     // 解析结束后destroy所有consumer
