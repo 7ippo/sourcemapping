@@ -118,8 +118,6 @@ program.option('-s, --stack <string>', 'stack string which can obtain from JSON.
 program.option('-i, --msg <string>', 'error message. e.g. Uncaught ReferenceError: a is not defined');
 program.option('-m, --map <string>', 'sourcemap dir path. Where to find sourcemap');
 program.parse(process.argv);
-// console.debug("Check input")
-// console.log(program.opts());
 if (program.stack && program.msg && program.map) {
     var error_obj = {
         'stack': program.stack,
@@ -134,7 +132,6 @@ if (program.stack && program.msg && program.map) {
         console.error('ErrorStackParser parsing failed' + error.toString());
         process.exit(0);
     }
-    // console.debug(stack_frame_array);
     var sourcemap_map_1 = new Map();
     // 加载全部要用到的sourcemap文件
     loadAllConsumer(program.map, stack_frame_array_2, sourcemap_map_1).then(function () {
@@ -148,10 +145,6 @@ if (program.stack && program.msg && program.map) {
                     line: stack_frame.lineNumber,
                     column: stack_frame.columnNumber
                 });
-                // console.debug("before analyzed");
-                // console.debug(stack_frame);
-                // console.debug("after analyzed");
-                // console.debug(origin);
                 if (origin_1.line)
                     stack_frame.lineNumber = origin_1.line;
                 if (origin_1.column)
@@ -163,7 +156,6 @@ if (program.stack && program.msg && program.map) {
             }
         });
         // 打印结果
-        // console.log(stack_frame_array);
         printToConsole(program.msg, stack_frame_array_2);
     });
     // 解析结束后destroy所有consumer
@@ -176,17 +168,23 @@ else {
     console.error("No error stack string OR error msg string OR sourcemap dir found. Please Check input.");
 }
 var templateObject_1;
-// stack: "ReferenceError: exclued is not defined\n    at getParameterByName (http://localhost:7777/aabbcc/index.js:7:37)\n    at http://localhost:7777/aabbcc/index.js:15:11",
-// message: "Uncaught ReferenceError: exclued is not defined",
-// [ { columnNumber: 37,
-//     lineNumber: 7,
-//     fileName: 'http://localhost:7777/aabbcc/index.js',
-//     functionName: 'getParameterByName',
-//     source:
-//      '    at getParameterByName (http://localhost:7777/aabbcc/index.js:7:37)' },
-//   { columnNumber: 11,
-//     lineNumber: 15,
-//     fileName: 'http://localhost:7777/aabbcc/index.js',
-//     source: '    at http://localhost:7777/aabbcc/index.js:15:11' } ]
-// "ReferenceError: exclued is not defined\n at getParameterByName (http://localhost:7777/logline.min.js:1:99)\n at http://localhost:7777/aabbcc/index.js:15:11"
+/**
+ * Sample input:
+    stack: "ReferenceError: exclued is not defined\n at getParameterByName (http://localhost:7777/logline.min.js:1:9827)\n at http://localhost:7777/aabbcc/index.js:15:11"
+    message: "Uncaught ReferenceError: exclued is not defined",
+    map: ".test"
+
+ * What stack_frame_array looks like?
+
+    [ { columnNumber: 37,
+        lineNumber: 7,
+        fileName: 'http://localhost:7777/aabbcc/index.js',
+        functionName: 'getParameterByName',
+        source:
+        '    at getParameterByName (http://localhost:7777/aabbcc/index.js:7:37)' },
+    { columnNumber: 11,
+        lineNumber: 15,
+        fileName: 'http://localhost:7777/aabbcc/index.js',
+        source: '    at http://localhost:7777/aabbcc/index.js:15:11' } ]
+ */ 
 //# sourceMappingURL=sourcemapping.js.map

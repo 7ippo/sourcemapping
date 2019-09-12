@@ -1,7 +1,9 @@
 {
   "name": "sourcemapping",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "mapping to source code",
+  "homepage": "https://github.com/7ippo/sourcemapping",
+  "repository": "https://github.com/7ippo/sourcemapping.git",
   "main": "index.js",
   "scripts": {
     "test": "node --inspect-brk=9229 bin/sourcemapping.js -s \"ReferenceError: exclued is not defined\\n    at getParameterByName (http://localhost:7777/aabbcc/logline.min.js:1:9827)\\n    at http://localhost:7777/aabbcc/index.js:15:11\" -i \"Uncaught ReferenceError: exclued is not defined\" -m \"./test\""
@@ -9,7 +11,7 @@
   "bin": {
     "sourcemapping": "bin/sourcemapping.js"
   },
-  "author": "zpo",
+  "author": "zpo <tingsven@163.com>",
   "license": "ISC",
   "keywords": [
     "sourcemap",
