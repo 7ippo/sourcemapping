@@ -61,15 +61,20 @@ async function loadAllConsumer(dir_path: string, stack_frame_array: ErrorStackPa
 const program = new commander.Command();
 program.version('0.0.1', '-v, --version');
 program.option('-s, --stack <string>', 'stack string which can obtain from JSON.stringfy(Error.stack)', stackStringProcess);
-program.option('-i, --msg <string>', 'error message. e.g. Uncaught ReferenceError: a is not defined');
 program.option('-m, --map <string>', 'sourcemap dir path. Where to find sourcemap');
 program.parse(process.argv);
 
 if (program.stack && program.msg && program.map) {
+    const msgExp = /(.+)\n/;
+    const msg = msgExp.exec(program.stack)[1];
+    if (!msg) {
+        console.error('Error message parsing failed, please check input stack which must contain error message. \ne.g. Uncaught ReferenceError: a is not defined\\n');
+        process.exit(0);
+    }
     let error_obj: Error = {
         'stack': program.stack,
-        'message': program.msg,
-        'name': program.msg.split(':')[0]
+        'message': msg,
+        'name': msg.split(':')[0]
     }
     let stack_frame_array: ErrorStackParser.StackFrame[] = [];
     try {
@@ -101,7 +106,7 @@ if (program.stack && program.msg && program.map) {
         });
 
         // 打印结果
-        printToConsole(program.msg, stack_frame_array);
+        printToConsole(msg, stack_frame_array);
     });
 
     // 解析结束后destroy所有consumer

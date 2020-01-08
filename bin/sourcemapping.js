@@ -5,10 +5,11 @@ var __makeTemplateObject = (this && this.__makeTemplateObject) || function (cook
     return cooked;
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -115,14 +116,19 @@ function loadAllConsumer(dir_path, stack_frame_array, sourcemap_map) {
 var program = new commander.Command();
 program.version('0.0.1', '-v, --version');
 program.option('-s, --stack <string>', 'stack string which can obtain from JSON.stringfy(Error.stack)', stackStringProcess);
-program.option('-i, --msg <string>', 'error message. e.g. Uncaught ReferenceError: a is not defined');
 program.option('-m, --map <string>', 'sourcemap dir path. Where to find sourcemap');
 program.parse(process.argv);
 if (program.stack && program.msg && program.map) {
+    var msgExp = /(.+)\n/;
+    var msg_1 = msgExp.exec(program.stack)[1];
+    if (!msg_1) {
+        console.error('Error message parsing failed, please check input stack which must contain error message. \ne.g. Uncaught ReferenceError: a is not defined\\n');
+        process.exit(0);
+    }
     var error_obj = {
         'stack': program.stack,
-        'message': program.msg,
-        'name': program.msg.split(':')[0]
+        'message': msg_1,
+        'name': msg_1.split(':')[0]
     };
     var stack_frame_array_2 = [];
     try {
@@ -156,7 +162,7 @@ if (program.stack && program.msg && program.map) {
             }
         });
         // 打印结果
-        printToConsole(program.msg, stack_frame_array_2);
+        printToConsole(msg_1, stack_frame_array_2);
     });
     // 解析结束后destroy所有consumer
     for (var _i = 0, _a = Array.from(sourcemap_map_1.values()); _i < _a.length; _i++) {

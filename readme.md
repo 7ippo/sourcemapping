@@ -10,7 +10,7 @@
 
 ## 用法
 
-需要传入window.onerror中捕获的`JSON.stringfy(errorObj.stack)`即需要被解析的堆栈字符串，通过window.onerror捕获的`errorMessage`即错误信息，以及存放sourcemap的路径。
+需要传入window.onerror中捕获的`JSON.stringfy(errorObj.stack)`即需要被解析的堆栈字符串，以及存放sourcemap文件的相对路径。
 
 > sourcemap文件命名为各压缩混淆工具的默认规则:`javascript文件名.map`，需要直接存放在指定路径下
 
@@ -26,11 +26,10 @@ Usage: sourcemapping [options]
 Options:
   -v, --version         output the version number
   -s, --stack <string>  stack string which can obtain from JSON.stringfy(Error.stack)
-  -i, --msg <string>    error message. e.g. Uncaught ReferenceError: a is not defined
   -m, --map <string>    sourcemap dir path. Where to find sourcemap
   -h, --help            output usage information
 
-sourcemapping -s "ReferenceError: exclued is not defined\n    at getParameterByName (http://localhost:7777/aabbcc/logline.min.js:1:9827)\n    at http://localhost:7777/aabbcc/index.js:15:11" -i "Uncaught ReferenceError: exclued is not defined" -m "./test"
+sourcemapping -s "ReferenceError: exclued is not defined\n    at getParameterByName (http://localhost:7777/aabbcc/logline.min.js:1:9827)\n    at http://localhost:7777/aabbcc/index.js:15:11" -m "./test"
 ```
 
 ### 输出
@@ -41,4 +40,13 @@ Uncaught ReferenceError: exclued is not defined
     at Logline (../src/logline.js:62:31)
     at (index.js:15:11)
 ------------------------
+```
+
+### 测试
+
+工具使用TypeScript编写，修改源码后调试测试可以使用如下命令:
+
+```powershell
+npm install
+npm run test
 ```
