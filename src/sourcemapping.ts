@@ -59,7 +59,7 @@ async function loadAllConsumer(dir_path: string, stack_frame_array: ErrorStackPa
 }
 
 const program = new commander.Command();
-program.version('1.0.6', '-v, --version');
+program.version('1.0.7', '-v, --version');
 program.option('-s, --stack <string>', 'stack string which can obtain from JSON.stringfy(Error.stack)', stackStringProcess);
 program.option('-m, --map <string>', 'sourcemap dir path. Where to find sourcemap');
 program.parse(process.argv);
