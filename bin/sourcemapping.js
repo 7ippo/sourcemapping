@@ -114,7 +114,7 @@ function loadAllConsumer(dir_path, stack_frame_array, sourcemap_map) {
     });
 }
 var program = new commander.Command();
-program.version('0.0.1', '-v, --version');
+program.version('1.0.7', '-v, --version');
 program.option('-s, --stack <string>', 'stack string which can obtain from JSON.stringfy(Error.stack)', stackStringProcess);
 program.option('-m, --map <string>', 'sourcemap dir path. Where to find sourcemap');
 program.parse(process.argv);
@@ -145,7 +145,6 @@ if (program.stack && program.map) {
         stack_frame_array_2.forEach(function (stack_frame) {
             var name = stack_frame.fileName;
             if (sourcemap_map_1.has(name)) {
-                // console.log("using " + name + ".map to mapping!");
                 var consumer = sourcemap_map_1.get(name);
                 var origin_1 = consumer.originalPositionFor({
                     line: stack_frame.lineNumber,
@@ -171,7 +170,7 @@ if (program.stack && program.map) {
     }
 }
 else {
-    console.error("No error stack string OR error msg string OR sourcemap dir found. Please Check input.");
+    console.error("No error stack string OR sourcemap dir found. Please Check input.");
 }
 var templateObject_1;
 /**
