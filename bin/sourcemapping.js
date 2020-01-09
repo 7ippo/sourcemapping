@@ -118,8 +118,8 @@ program.version('0.0.1', '-v, --version');
 program.option('-s, --stack <string>', 'stack string which can obtain from JSON.stringfy(Error.stack)', stackStringProcess);
 program.option('-m, --map <string>', 'sourcemap dir path. Where to find sourcemap');
 program.parse(process.argv);
-if (program.stack && program.msg && program.map) {
-    var msgExp = /(.+)\n/;
+if (program.stack && program.map) {
+    var msgExp = /^(.+)\n/;
     var msg_1 = msgExp.exec(program.stack)[1];
     if (!msg_1) {
         console.error('Error message parsing failed, please check input stack which must contain error message. \ne.g. Uncaught ReferenceError: a is not defined\\n');

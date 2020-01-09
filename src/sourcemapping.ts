@@ -64,8 +64,8 @@ program.option('-s, --stack <string>', 'stack string which can obtain from JSON.
 program.option('-m, --map <string>', 'sourcemap dir path. Where to find sourcemap');
 program.parse(process.argv);
 
-if (program.stack && program.msg && program.map) {
-    const msgExp = /(.+)\n/;
+if (program.stack && program.map) {
+    const msgExp = /^(.+)\n/;
     const msg = msgExp.exec(program.stack)[1];
     if (!msg) {
         console.error('Error message parsing failed, please check input stack which must contain error message. \ne.g. Uncaught ReferenceError: a is not defined\\n');
